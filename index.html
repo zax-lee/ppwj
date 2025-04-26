@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>PPWJ Minecraft Server</title>
+  <link rel="stylesheet" media="screen" href="https://fontlibrary.org//face/minecraftia" type="text/css"/>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: auto;
+      font-family: 'MinecraftiaRegular', sans-serif;
+      color: #fff;
+      text-align: center;
+      animation: backgroundShift 10s infinite alternate;
+    }
+
+    @keyframes backgroundShift {
+      0%   { background-color: #1e3c72; }
+      25%  { background-color: #2a5298; }
+      50%  { background-color: #4b6cb7; }
+      75%  { background-color: #6a82fb; }
+      100% { background-color: #1e3c72; }
+    }
+
+    #block-canvas, #background-items {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 555%;
+      z-index: 0;
+    }
+
+    #background-items {
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .minecraft-item {
+      position: absolute;
+      width: 32px;
+      height: 32px;
+      opacity: 0.7;
+      animation: floatItem 20s linear infinite;
+    }
+
+    @keyframes floatItem {
+      0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+      10% { opacity: 0.8; }
+      90% { opacity: 0.8; }
+      100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+    }
+
+    .content {
+      position: relative;
+      z-index: 1;
+      padding-top: 100px;
+      background: transparent;
+      min-height: 100vh;
+    }
+
+    /* Background for server description */
+    #server-description {
+      background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),   
+      url('https://static.wikia.nocookie.net/minecraft_gamepedia/images/3/3d/Dirt_%28texture%29_JE2_BE2.png/revision/latest?cb=20200919012354') repeat;
+      padding: 20px;
+      border-radius: 12px;
+      margin: 20px auto;
+      max-width: 800px;
+    }
+Title words (h1, h2) in gray */
+    #server-description h1,
+    #server-description h2 {
+      color: gray;
+    }
+
+    /* Body text in pale yellow */
+    #server-description p {
+      color: #FFFF99;
+    }
+
+    /* Emoticon glow & pulse */
+    @keyframes emoticonPulse {
+      0%   { transform: scale(1); text-shadow: 0 0 5px #FFD700; }
+      50%  { transform: scale(1.2); text-shadow: 0 0 15px #FFD700; }
+      100% { transform: scale(1); text-shadow: 0 0 5px #FFD700; }
+    }
+    .emoticon {
+      display: inline-block;
+      animation: emoticonPulse 2s infinite ease-in-out;
+    }
+
+
+    header, footer {
+      padding: 20px;
+      background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), 
+                  url('https://static.wikia.nocookie.net/mine-craft-io/images/5/57/Bedrockbutbigger.png/revision/latest?cb=20230812020751');
+      background-size: 100px;
+      background-repeat: repeat;
+      background-position: center;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 3rem;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); box-shadow: 0 0 5px rgba(255, 255, 255, 0.2); }
+      50% { transform: scale(1.05); box-shadow: 0 0 20px rgba(255, 255, 255, 0.4); }
+      100% { transform: scale(1); box-shadow: 0 0 5px rgba(255, 255, 255, 0.2); }
+    }
+
+    .button-wrapper {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 200px;
+      margin-top: 50px;
+    }
+
+    .join-button {
+      display: inline-block;
+      padding: 25px 60px;
+      background: url('https://static.wikia.nocookie.net/minecraft_gamepedia/images/c/ce/Obsidian_%28texture%29_JE1_BE1.png/revision/latest?cb=20200906115155');
+      color: white;
+      font-size: 32px;
+      font-weight: bold;
+      text-decoration: none;
+      border-radius: 16px;
+      transition: background-color 0.3s ease, transform 0.2s, box-shadow 0.3s ease;
+      font-family: 'MinecraftiaRegular', sans-serif;
+      position: relative;
+      overflow: hidden;
+      animation: pulse 2s infinite;
+    }
+
+    .join-button::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 300%;
+      height: 300%;
+      background: url('https://24.media.tumblr.com/ae679a9249d5d0dd2415e5a5a3bc5bdb/tumblr_mgvrg9Dgdt1s2r8omo1_250.gif') center center no-repeat;
+      background-size: cover;
+      transform: translate(-50%, -50%) scale(0);
+      transition: transform 1s ease-out;
+      z-index: -1;
+    }
+
+    .join-button:hover::before {
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    .join-button:hover {
+      transform: scale(1.05) translateY(-5px);
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .join-button:active {
+      animation: buttonBounce 0.3s ease-out;
+    }
+
+    @keyframes buttonBounce {
+      0% { transform: translateY(0); }
+      25% { transform: translateY(-5px); }
+      50% { transform: translateY(0); }
+      75% { transform: translateY(-2px); }
+      100% { transform: translateY(0); }
+    }
+
+    footer {
+      bottom: 10px;
+      width: 100%;
+      text-align: center;
+      font-size: 14px;
+      font-family: 'MinecraftiaRegular', sans-serif;
+      color: #fff;
+      z-index: 1;
+    }
+
+    .glow-name {
+      animation: glow 2s infinite alternate;
+      font-weight: bold;
+    }
+
+    @keyframes glow {
+      0% { color: #ff69b4; text-shadow: 0 0 5px #ff69b4, 0 0 10px #ff69b4; }
+      50% { color: #00ffff; text-shadow: 0 0 5px #00ffff, 0 0 10px #00ffff; }
+      100% { color: #ffd700; text-shadow: 0 0 5px #ffd700, 0 0 10px #ffd700; }
+    }
+
+    #widget-container {
+      margin: 20px auto;
+      max-width: 600px;
+      background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+                  url('https://static.wikia.nocookie.net/minecraft_gamepedia/images/d/dc/Stone_%28texture%29_JE5_BE3.png/revision/latest?cb=20201001141805');
+      background-size: 100px;
+      padding: 20px;
+      border-radius: 12px;
+      font-size: 14px;
+      text-align: left;
+      font-family: 'MinecraftiaRegular', sans-serif;
+    }
+
+    #latency-description {
+      margin-top: 20px;
+      background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+                  url('https://static.wikia.nocookie.net/minecraft_gamepedia/images/d/dc/Stone_%28texture%29_JE5_BE3.png/revision/latest?cb=20201001141805');
+      background-size: 100px;
+      padding: 15px;
+      border-radius: 8px;
+    }
+
+    .widget-line { margin: 8px 0; }
+
+    #ping-value {
+      transition: color 0.3s ease;
+      font-weight: bold;
+    }
+
+    .status-indicator {
+      font-weight: bold;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .online { color: #00ff00; text-shadow: 0 0 5px #00ff00, 0 0 10px #00ff00; }
+    .offline { color: #ff0000; text-shadow: 0 0 5px #ff0000, 0 0 10px #ff0000; }
+
+    .status-icon {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .status-icon.green {
+      background-color: #00ff00;
+      box-shadow: 0 0 5px #00ff00, 0 0 10px #00ff00;
+    }
+
+    .status-icon.red {
+      background-color: #ff0000;
+      box-shadow: 0 0 5px #ff0000, 0 0 10px #ff0000;
+    }
+
+    .copy-button {
+      margin-left: 10px;
+      padding: 2px 6px;
+      font-size: 12px;
+      background-color: #444;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-family: 'MinecraftiaRegular', sans-serif;
+    }
+
+    .copy-button:hover {
+      background-color: #666;
+    }
+
+    .header-animated {
+      animation: slideFromTop 1s ease-out forwards;
+      transform: translateY(-100%);
+      opacity: 0;
+    }
+
+    @keyframes slideFromTop {
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="block-canvas"></canvas>
+  <div id="background-items"></div>
+
+  <header class="content header-animated">
+    <h1>PPWJ Minecraft Server</h1>
+    <p>Bedrock Edition</p>
+  </header>
+
+ <!-- Server Description with Dirt Texture Background -->
+  <div id="server-description">
+    <h1>PPWJ Server - Minecraft Bedrock Edition</h1>
+    <p><strong>PPWJ Server</strong> menawarkan pengalaman bermain <strong>Minecraft Bedrock Edition</strong> yang penuh tantangan dan petualangan seru!</p>
+    
+    <h2 class="highlight"><span class="emoticon">🗺️</span> Quest yang Tak Ada Habisnya</h2>
+    <p>PPWJ Server menghadirkan beragam <span class="highlight">quest unik</span> yang menguji kreativitas dan strategi pemain. Dari perburuan harta karun hingga pertempuran melawan bos epik, setiap tantangan menawarkan hadiah menarik dan pengalaman yang semakin memperkaya perjalananmu di dunia Minecraft.</p>
+
+    <h2 class="highlight"><span class="emoticon">⚔️</span> Fitur Baru yang Akan Datang</h2>
+    <p>Server ini terus berkembang dengan fitur-fitur <span class="highlight">terbaru dan inovatif</span>! Bersiaplah untuk <span class="highlight">update eksklusif</span>, dari mekanisme gameplay baru hingga <span class="highlight">event spesial</span> yang akan membuat permainan semakin seru.</p>
+
+    <h2 class="highlight"><span class="emoticon">👥</span> Komunitas yang Ramai & Interaktif</h2>
+    <p>Dengan kapasitas hingga <span class="highlight">100 pemain</span>, PPWJ Server menjadi tempat yang sempurna untuk bermain bersama teman atau bertemu pemain baru dari seluruh Indonesia.</p>
+
+    <h2 class="highlight"><span class="emoticon">🔥</span> Selalu Online 24/7</h2>
+    <p>PPWJ Server selalu <span class="highlight">aktif sepanjang waktu</span>, memastikan kamu bisa masuk kapan saja dan langsung bergabung dalam keseruan Minecraft tanpa hambatan.</p>
+
+    <p><strong>Siapkah kamu untuk petualangan tanpa batas?</strong> <span class="emoticon">🚀🎮</span></p>
+  </div>
+
+
+  <div class="content">
+    <div id="widget-container">
+      <h2>Server Status</h2>
+      <div id="mc-widget">
+        <p>Loading...</p>
+      </div>
+    </div>
+
+    <div id="latency-description">
+      <div id="ping-status">
+        Latensi Server: <span id="ping-value">--</span>
+      </div>
+      <p>Indikator latensi ini menunjukkan waktu tempuh bolak-balik data komunikasi antara komputer/hp ke server kami. Latensi yang lebih rendah memastikan permainan yang lebih lancar.</p>
+    </div>
+
+    <div class="button-wrapper">
+      <a class="join-button" href="minecraft://?addExternalServer=ServerPPWJ|los-serial.gl.at.ply.gg:20089">ayo join</a>
+    </div>
+
+    <div style="margin-top: 40px; background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://static.wikia.nocookie.net/minecraft_gamepedia/images/d/dc/Stone_%28texture%29_JE5_BE3.png/revision/latest?cb=20201001141805'); background-size: 100px; padding: 20px; border-radius: 12px; font-family: 'MinecraftiaRegular', sans-serif; max-width: 600px; margin-left: auto; margin-right: auto;">
+      <h2>💖 Dukung Kami</h2>
+      <p>Kami menghargai setiap bentuk dukungan! Jika kamu menikmati server ini dan ingin melihatnya terus berkembang, pertimbangkan untuk berdonasi.</p>
+      <a href="https://teer.id/zaxys" target="_blank" style="display:inline-block;margin-top:10px;padding:10px 20px;background:#ff69b4;color:white;text-decoration:none;border-radius:8px;font-weight:bold;">💸 Donasi via Trakteer</a>
+    </div>
+
+    <div style="margin-top: 30px; background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://static.wikia.nocookie.net/minecraft_gamepedia/images/d/dc/Stone_%28texture%29_JE5_BE3.png/revision/latest?cb=20201001141805'); background-size: 100px; padding: 20px; border-radius: 12px; font-family: 'MinecraftiaRegular', sans-serif; max-width: 600px; margin-left: auto; margin-right: auto;">
+      <h2>🛠️ Bantuan & Support</h2>
+      <p>Butuh bantuan? Ada pertanyaan atau bug yang ingin kamu laporkan?</p>
+      <a href="https://discord.gg/gfWXfe7bZa" target="_blank" style="display:inline-block;margin-top:10px;padding:10px 20px;background:#7289da;color:white;text-decoration:none;border-radius:8px;font-weight:bold;">💬 Join Discord Kami</a>
+    </div>
+
+    <div style="margin-top: 30px; background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://static.wikia.nocookie.net/minecraft_gamepedia/images/d/dc/Stone_%28texture%29_JE5_BE3.png/revision/latest?cb=20201001141805'); background-size: 100px; padding: 20px; border-radius: 12px; font-family: 'MinecraftiaRegular', sans-serif; max-width: 600px; margin-left: auto; margin-right: auto;">
+      <h2>📧 Hubungi Kami</h2>
+      <p>Untuk pertanyaan bisnis atau kerja sama, silakan hubungi melalui email berikut:</p>
+      <p><a href="mailto:ppwjserver@gmail.com" style="color:#00ffff;text-decoration:underline;">ppwjserver@gmail.com</a></p>
+      <p><a href="mailto:zapyred.zaxys@gmail.com" style="color:#00ffff;text-decoration:underline;">zapyred.zaxys@gmail.com</a></p>
+    </div>
+  </div>
+
+  <footer>
+    <p>2016-2025 PPWJ Anti Komunis Limited Group</p>
+    <p>created by <span class="glow-name">Zapyred</span>/<span class="glow-name">ZaxYs</span></p>
+  </footer>
+
+  <script>
+    let serverIsOnline = false;
+
+    async function loadWidget() {
+      const url = 'https://api.mcstatus.io/v2/status/bedrock/los-serial.gl.at.ply.gg:20089';
+      const widget = document.getElementById('mc-widget');
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+        serverIsOnline = data.online;
+
+        const statusClass = serverIsOnline ? 'online' : 'offline';
+        const iconClass = serverIsOnline ? 'green' : 'red';
+        const statusText = serverIsOnline ? 'Online' : 'Offline';
+        const fullAddress = `${data.host}:${data.port}`;
+
+        widget.innerHTML = `
+          <div class="widget-line status-indicator ${statusClass}">
+            <span class="status-icon ${iconClass}"></span> ${statusText}
+          </div>
+          <div class="widget-line">
+            <strong>Alamat Host:</strong> ${data.host}
+            <button class="copy-button" onclick="copyToClipboard('${fullAddress}')">Salin</button>
+          </div>
+          <div class="widget-line"><strong>Port:</strong> ${data.port}</div>
+          <div class="widget-line"><strong>Pemain:</strong> ${data.players.online} / ${data.players.max}</div>
+          <div class="widget-line"><strong>Versi:</strong> ${data.version.name}</div>
+        `;
+      } catch (error) {
+        serverIsOnline = false;
+        widget.innerHTML = '<p>Error loading widget. Please try again later.</p>';
+      }
+    }
+
+    function copyToClipboard(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        alert('Copied: ' + text);
+      }).catch(err => {
+        alert('Failed to copy: ' + err);
+      });
+    }
+
+    async function measurePing() {
+      const pingValueEl = document.getElementById("ping-value");
+
+      if (!serverIsOnline) {
+        pingValueEl.textContent = "Offline";
+        pingValueEl.style.color = "gray";
+        return;
+      }
+
+      const start = performance.now();
+      let latency;
+      try {
+        await fetch("http://ping.gl.ply.gg/ping?" + Math.random(), { mode: 'no-cors' });
+        const end = performance.now();
+        latency = Math.round(end - start);
+      } catch (e) {
+        latency = null;
+      }
+
+      if (latency === null || isNaN(latency) || !isFinite(latency)) {
+        pingValueEl.textContent = "connection failed";
+        pingValueEl.style.color = "gray";
+      } else {
+        if (latency > 999) {
+          pingValueEl.textContent = "999+ ms";
+          pingValueEl.style.color = "red";
+        } else {
+          pingValueEl.textContent = latency + " ms";
+          if (latency < 80) {
+            pingValueEl.style.color = "green";
+          } else if (latency <= 300) {
+            pingValueEl.style.color = "orange";
+          } else {
+            pingValueEl.style.color = "red";
+          }
+        }
+      }
+    }
+
+    function spawnItem() {
+      const container = document.getElementById('background-items');
+      const itemUrls = [
+        'https://minecraft.wiki/images/Netherite_Sword_JE2_BE2.png?8e866',
+        'https://minecraft.wiki/images/Diamond_JE3_BE3.png?99d00',
+        'https://minecraft.wiki/images/Diamond_Pickaxe_JE3_BE3.png',
+        'https://minecraft.wiki/images/Lava_Bucket_JE2_BE2.png?55ee0'
+      ];
+
+      const item = document.createElement('img');
+      item.src = itemUrls[Math.floor(Math.random() * itemUrls.length)];
+      item.className = 'minecraft-item';
+      item.style.left = Math.random() * 100 + 'vw';
+      item.style.top = '500vh';
+      item.style.animationDuration = (28 + Math.random() * 15) + 's'; 
+      item.style.transform = `rotate(${Math.random() * 360}deg)`;
+
+      container.appendChild(item);
+      setTimeout(() => item.remove(), 2000000);
+    }
+
+    loadWidget();
+    measurePing();
+    setInterval(measurePing, 1000);
+    setInterval(spawnItem, 1500);
+
+  </script>
+</body>
+</html>
